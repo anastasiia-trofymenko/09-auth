@@ -7,12 +7,13 @@ import Pagination from "@/components/Pagination/Pagination";
 import Loader from "@/components/Loader/Loader";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { fetchNotes } from "@/lib/api/api";
+import { fetchNotes } from "@/lib/api/serverApi";
 import { useDebouncedCallback } from "use-debounce";
 import Link from "next/link";
+import { FetchTagNote } from "@/types/note";
 
 interface NotesClientProps {
-  tag: string;
+  tag: FetchTagNote;
 }
 
 export default function NotesClient({ tag }: NotesClientProps) {
@@ -30,7 +31,7 @@ export default function NotesClient({ tag }: NotesClientProps) {
 
   const { data, isLoading, isError, isPlaceholderData } = useQuery({
     queryKey: ["notes", search, page, tag],
-    queryFn: () => fetchNotes(search, page, tag),
+    queryFn: () => fetchNotes(tag, page, search),
     placeholderData: keepPreviousData,
   });
 
