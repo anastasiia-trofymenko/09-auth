@@ -2,9 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createNote } from "../../lib/api";
+import { createNote } from "@/lib/api/clientApi";
 import { useNoteStore } from "@/lib/store/noteStore";
 import css from "./NoteForm.module.css";
+import { NewNote } from "@/types/note";
+
+type noteTag = "Todo" | "Work" | "Personal" | "Meeting" | "Shopping";
 
 export default function NoteForm() {
   const router = useRouter();
@@ -12,14 +15,25 @@ export default function NoteForm() {
 
   const { draft, setDraft, clearDraft } = useNoteStore();
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: (values: typeof draft) => createNote({ noteData: values }),
+  const createMutation = useMutation({
+    mutationFn: async (data: NewNote) => {
+      const res = await createNote(data);
+      return res;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
       clearDraft();
-      router.push("/notes");
+      successForm();
     },
   });
+
+  function cancelForm() {
+    router.back();
+  }
+
+  function successForm() {
+    router.push("/notes/filter/all");
+  }
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -30,13 +44,17 @@ export default function NoteForm() {
     setDraft({ [name]: value });
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    mutate(draft);
+  const handleSubmit = (formDada: FormData) => {
+    const newNote: NewNote = {
+      title: formDada.get("title") as string,
+      content: formDada.get("content") as string,
+      tag: formDada.get("tag") as noteTag,
+    };
+    createMutation.mutate(newNote);
   };
 
   return (
-    <form className={css.form} onSubmit={handleSubmit}>
+    <form className={css.form} action={handleSubmit}>
       <div className={css.formGroup}>
         <label htmlFor="title">Title</label>
         <input
@@ -80,15 +98,11 @@ export default function NoteForm() {
       </div>
 
       <div className={css.actions}>
-        <button
-          type="button"
-          className={css.cancelButton}
-          onClick={() => router.back()}
-        >
+        <button type="button" className={css.cancelButton} onClick={cancelForm}>
           Cancel
         </button>
-        <button type="submit" className={css.submitButton} disabled={isPending}>
-          {isPending ? "Creating..." : "Create note"}
+        <button type="submit" className={css.submitButton}>
+          Create note
         </button>
       </div>
     </form>

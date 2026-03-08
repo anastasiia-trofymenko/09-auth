@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import css from "./Modal.module.css";
-// import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { createPortal } from "react-dom";
 
 interface ModalProps {
@@ -13,7 +13,7 @@ interface ModalProps {
 const modalRoot = document.querySelector("#modal-root") || document.body;
 
 export default function Modal({ onClose, children }: ModalProps) {
-  // const router = useRouter();
+  const router = useRouter();
 
   useEffect(() => {
     const originalStyle = window.getComputedStyle(document.body).overflow;
@@ -29,7 +29,7 @@ export default function Modal({ onClose, children }: ModalProps) {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
+  }, [onClose, router]);
 
   return createPortal(
     <div
