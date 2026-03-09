@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { nextServer } from "./api";
+import "server-only";
 
 import type { User } from "@/types/user";
 import { type Note, type FetchTagNote } from "@/types/note";
