@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { parse } from "cookie";
 import { checkSession } from "./lib/api/serverApi";
 
-const privateRoure = ["/notes", "/profile"];
+const privateRoute = ["/notes", "/profile"];
 const publicRoute = ["/sign-in", "/sign-up"];
 
 export async function proxy(req: NextRequest) {
@@ -13,7 +13,7 @@ export async function proxy(req: NextRequest) {
   const refreshToken = cookie.get("refreshToken")?.value;
 
   const isPublic = publicRoute.some((route) => path.startsWith(route));
-  const isPrivate = privateRoure.some((route) => path.startsWith(route));
+  const isPrivate = privateRoute.some((route) => path.startsWith(route));
 
   if (accessToken) {
     if (isPrivate) {
